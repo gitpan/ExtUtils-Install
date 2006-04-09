@@ -1,0 +1,25 @@
+# http://module-build.sourceforge.net/META-spec.html
+#XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
+name:         ExtUtils-Install
+version:      1.38
+version_from: lib/ExtUtils/Install.pm
+installdirs:  site
+requires:
+    AutoSplit:                     0
+    Carp:                          0
+    Config:                        0
+    Cwd:                           0
+    Exporter:                      0
+    ExtUtils::MakeMaker:           0
+    ExtUtils::MM:                  0
+    File::Basename:                0
+    File::Compare:                 0
+    File::Copy:                    0
+    File::Find:                    0
+    File::Path:                    0
+    File::Spec:                    0
+    vars:                          0
+    Win32API::File:                0
+
+distribution_type: module
+generated_by: ExtUtils::MakeMaker version 6.30
