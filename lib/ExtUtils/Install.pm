@@ -3,7 +3,7 @@ use 5.00503;
 use strict;
 
 use vars qw(@ISA @EXPORT $VERSION $MUST_REBOOT %Config);
-$VERSION = '1.41';
+$VERSION = '1.41_01';
 $VERSION = eval $VERSION;
 
 use AutoSplit;
@@ -431,11 +431,12 @@ sub _can_write_dir {
     return
         unless defined $dir and length $dir;
 
-    my @dirs=File::Spec->splitdir(File::Spec->rel2abs($dir));
+    my ($vol, $dirs, $file) = File::Spec->splitpath(File::Spec->rel2abs($dir));
+    my @dirs = File::Spec->splitdir($dirs);
     my $path='';
     my @make;
     while (@dirs) {
-        $dir=File::Spec->catdir(@dirs);
+        $dir=File::Spec->catpath($vol, @dirs, '');
         next if ( $dir eq $path );
         if ( ! -e $dir ) {
             unshift @make,$dir;
@@ -664,7 +665,7 @@ sub install { #XXX OS-SPECIFIC
 
 	    if ( defined $inc_uninstall ) {
 		inc_uninstall($sourcefile,$File::Find::dir,$verbose,
-                              $inc_uninstall ? 0 : 1,
+                              $nonono,
                               $realtarget ne $targetfile ? $realtarget : "");
 	    }
 
@@ -682,7 +683,7 @@ sub install { #XXX OS-SPECIFIC
     if ($pack{'write'}) {
 	$dir = install_rooted_dir(dirname($pack{'write'}));
 	_mkpath( $dir, 0, 0755, $verbose, $nonono );
-	print "Writing $pack{'write'}\n";
+	print "Writing $pack{'write'}\n" if $verbose;
 	$packlist->write(install_rooted_file($pack{'write'})) unless $nonono;
     }
 
@@ -927,7 +928,7 @@ sub inc_uninstall {
 	    }
 	    # if not verbose, we just say nothing
 	} else {
-	    print "Unlinking $targetfile (shadowing?)\n";
+	    print "Unlinking $targetfile (shadowing?)\n" if $verbose;
 	    forceunlink($targetfile,'tryhard');
 	}
     }
