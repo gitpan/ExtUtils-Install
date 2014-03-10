@@ -3,27 +3,31 @@
 # Make sure EUI works with MakeMaker
 
 BEGIN {
-    if( $ENV{PERL_CORE} ) {
-        chdir 't' if -d 't';
-        @INC = ('../lib', 'lib');
-    }
-    else {
-        unshift @INC, 't/lib';
-    }
+    unshift @INC, 't/lib';
 }
 
 use strict;
 use Config;
 use ExtUtils::MakeMaker;
 
-use Test::More tests => 15;
+use Test::More;
 use MakeMaker::Test::Utils;
+
+my $make;
+BEGIN {
+    $make = make_run();
+    if (!$make) {
+	plan skip_all => "make isn't available";
+    }
+    else {
+	plan tests => 15;
+    }
+}
+
 use MakeMaker::Test::Setup::BFD;
 use File::Find;
 use File::Spec;
 use File::Path;
-
-my $make = make_run();
 
 # Environment variables which interfere with our testing.
 delete @ENV{qw(PREFIX LIB MAKEFLAGS)};
@@ -33,9 +37,9 @@ delete @ENV{qw(PREFIX LIB MAKEFLAGS)};
     my $perl = which_perl();
     my $Is_VMS = $^O eq 'VMS';
 
-    chdir 't';
-
     perl_lib;
+
+    chdir 't';
 
     my $Touch_Time = calibrate_mtime();
 

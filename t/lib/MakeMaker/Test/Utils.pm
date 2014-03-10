@@ -135,21 +135,30 @@ sub which_perl {
   perl_lib;
 
 Sets up environment variables so perl can find its libraries.
+Run this before changing directories.
 
 =cut
 
 my $old5lib = $ENV{PERL5LIB};
 my $had5lib = exists $ENV{PERL5LIB};
 sub perl_lib {
-                               # perl-src/t/
-    my $lib =  $ENV{PERL_CORE} ? qq{../lib}
-                               # ExtUtils-MakeMaker/t/
-                               : qq{../blib/lib};
-    $lib = File::Spec->rel2abs($lib);
-    my @libs = ($lib);
-    push @libs, $ENV{PERL5LIB} if exists $ENV{PERL5LIB};
-    $ENV{PERL5LIB} = join($Config{path_sep}, @libs);
-    unshift @INC, $lib;
+    if ($ENV{PERL_CORE}) {
+	# Whilst we'll be running in perl-src/cpan/$distname/t/
+	# instead of blib, our code will be copied with all the other code to
+	# the top-level library.
+	# $ENV{PERL5LIB} will be set with this, but (by default) it's a relative
+	# path.
+	$ENV{PERL5LIB} = join $Config{path_sep}, map {
+	    File::Spec->rel2abs($_) } split quotemeta($Config{path_sep}), $ENV{PERL5LIB};
+	@INC = map { File::Spec->rel2abs($_) } @INC;
+    } else {
+	my $lib = 'blib/lib';
+	$lib = File::Spec->rel2abs($lib);
+	my @libs = ($lib);
+	push @libs, $ENV{PERL5LIB} if exists $ENV{PERL5LIB};
+	$ENV{PERL5LIB} = join($Config{path_sep}, @libs);
+	unshift @INC, $lib;
+    }
 }
 
 END { 
@@ -201,6 +210,7 @@ sub make {
     my $make = $Config{make};
     $make = $ENV{MAKE} if exists $ENV{MAKE};
 
+    return if !can_run($make);
     return $make;
 }
 
@@ -214,6 +224,7 @@ Returns the make to run as with make() plus any necessary switches.
 
 sub make_run {
     my $make = make;
+    return if !$make;
     $make .= ' -nologo' if $make eq 'nmake';
 
     return $make;
@@ -340,7 +351,7 @@ sub setup_mm_test_root {
         open( MMTMP, '>mmtesttmp.com' ) || 
           die "Error creating command file; $!";
         print MMTMP <<'COMMAND';
-$ MM_TEST_ROOT = F$PARSE("SYS$DISK:[-]",,,,"NO_CONCEAL")-".][000000"-"]["-"].;"+".]"
+$ MM_TEST_ROOT = F$PARSE("SYS$DISK:[--]",,,,"NO_CONCEAL")-".][000000"-"]["-"].;"+".]"
 $ DEFINE/JOB/NOLOG/TRANSLATION=CONCEALED MM_TEST_ROOT 'MM_TEST_ROOT'
 COMMAND
         close MMTMP;
@@ -399,6 +410,58 @@ sub slurp {
     close $fh;
 
     return $text;
+}
+
+=item can_run
+
+C<can_run> takes only one argument: the name of a binary you wish
+to locate. C<can_run> works much like the unix binary C<which> or the bash
+command C<type>, which scans through your path, looking for the requested
+binary.
+
+Unlike C<which> and C<type>, this function is platform independent and
+will also work on, for example, Win32.
+
+If called in a scalar context it will return the full path to the binary
+you asked for if it was found, or C<undef> if it was not.
+
+If called in a list context and the global variable C<$INSTANCES> is a true
+value, it will return a list of the full paths to instances
+of the binary where found in C<PATH>, or an empty list if it was not found.
+
+=cut
+
+sub can_run {
+    my $command = shift;
+
+    # a lot of VMS executables have a symbol defined
+    # check those first
+    if ( $^O eq 'VMS' ) {
+        require VMS::DCLsym;
+        my $syms = VMS::DCLsym->new;
+        return $command if scalar $syms->getsym( uc $command );
+    }
+
+    require File::Spec;
+    require ExtUtils::MakeMaker;
+
+    my @possibles;
+
+    if( File::Spec->file_name_is_absolute($command) ) {
+        return MM->maybe_command($command);
+
+    } else {
+        for my $dir (
+            File::Spec->path,
+            File::Spec->curdir
+        ) {
+            next if ! $dir || ! -d $dir;
+            my $abs = File::Spec->catfile( $^O eq 'MSWin32' ? Win32::GetShortPathName( $dir ) : $dir, $command);
+            push @possibles, $abs if $abs = MM->maybe_command($abs);
+        }
+    }
+    return @possibles if wantarray;
+    return shift @possibles;
 }
 
 =back

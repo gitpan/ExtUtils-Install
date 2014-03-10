@@ -1,15 +1,8 @@
 #!/usr/bin/perl -w
 
 BEGIN {
-    if( $ENV{PERL_CORE} ) {
-        chdir 't' if -d 't';
-        @INC = '../lib';
-    }
-    else {
-        unshift @INC, 't/lib/';
-    }
+    unshift @INC, 't/lib/';
 }
-chdir 't';
 
 my $Is_VMS = $^O eq 'VMS';
 
@@ -21,7 +14,7 @@ use File::Path;
 use File::Basename;
 use File::Spec;
 
-use Test::More tests => 63;
+use Test::More tests => 73;
 
 BEGIN { use_ok( 'ExtUtils::Installed' ) }
 
@@ -114,10 +107,53 @@ my $fake_mod_dir = File::Spec->catdir(cwd(), 'auto', 'FakeMod');
         sitearchexp        => $fake_mod_dir,
     );
 
-    # necessary to fool new()
-    push @INC, $fake_mod_dir;
+    # should find $fake_mod_dir via '.' in @INC
 
     my $realei = ExtUtils::Installed->new();
+    isa_ok( $realei, 'ExtUtils::Installed' );
+    isa_ok( $realei->{Perl}{packlist}, 'ExtUtils::Packlist' );
+    is( $realei->{Perl}{version}, $Config{version},
+        'new() should set Perl version from %Config' );
+
+    ok( exists $realei->{FakeMod}, 'new() should find modules with .packlists');
+    isa_ok( $realei->{FakeMod}{packlist}, 'ExtUtils::Packlist' );
+    is( $realei->{FakeMod}{version}, '1.1.1',
+	'... should find version in modules' );
+}
+
+{
+    # avoid warning and death by localizing glob
+    local *ExtUtils::Installed::Config;
+    %ExtUtils::Installed::Config = (
+        %Config,
+        archlibexp         => cwd(),
+        sitearchexp        => $fake_mod_dir,
+    );
+
+    # disable '.' search
+
+    my $realei = ExtUtils::Installed->new( skip_cwd => 1 );
+    isa_ok( $realei, 'ExtUtils::Installed' );
+    isa_ok( $realei->{Perl}{packlist}, 'ExtUtils::Packlist' );
+    is( $realei->{Perl}{version}, $Config{version},
+        'new() should set Perl version from %Config' );
+
+    ok( ! exists $realei->{FakeMod}, 'new( skip_cwd => 1 ) should fail to find modules with .packlists');
+}
+
+{
+    # avoid warning and death by localizing glob
+    local *ExtUtils::Installed::Config;
+    %ExtUtils::Installed::Config = (
+        %Config,
+        archlibexp         => cwd(),
+        sitearchexp        => $fake_mod_dir,
+    );
+
+    # necessary to fool new() since we'll disable searching '.'
+    push @INC, $fake_mod_dir;
+
+    my $realei = ExtUtils::Installed->new( skip_cwd => 1 );
     isa_ok( $realei, 'ExtUtils::Installed' );
     isa_ok( $realei->{Perl}{packlist}, 'ExtUtils::Packlist' );
     is( $realei->{Perl}{version}, $Config{version},
