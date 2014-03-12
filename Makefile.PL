@@ -56,6 +56,7 @@ WriteMakefile1(
         'File::Find' => 0,
         'File::Path' => 0,
         'File::Spec' => 0,
+        'File::Temp' => 0,
 
         ($^O eq 'VMS' ? ('VMS::Filespec' => 0) : ()),
         ($Recommend_Win32API_File ? ('Win32API::File' => 0) : ()),

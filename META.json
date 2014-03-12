@@ -4,12 +4,12 @@
       "demerphq <yves@cpan.org>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.88, CPAN::Meta::Converter version 2.140630",
+   "generated_by" : "ExtUtils::MakeMaker version 6.9, CPAN::Meta::Converter version 2.140640",
    "license" : [
       "perl_5"
    ],
    "meta-spec" : {
-      "url" : "https://metacpan.org/pod/CPAN::Meta::Spec",
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
       "version" : "2"
    },
    "name" : "ExtUtils-Install",
@@ -40,7 +40,8 @@
             "File::Copy" : "0",
             "File::Find" : "0",
             "File::Path" : "0",
-            "File::Spec" : "0"
+            "File::Spec" : "0",
+            "File::Temp" : "0"
          }
       }
    },
@@ -56,5 +57,5 @@
          "web" : "http://perl5.git.perl.org/perl.git/"
       }
    },
-   "version" : "1.62"
+   "version" : "1.63"
 }

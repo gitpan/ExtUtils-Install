@@ -1,5 +1,9 @@
 Revision history for ExtUtils-Install
 
+1.63
+
+- Enable tests to run in parallel
+
 1.62
 
 - Various POD fixes and typos
