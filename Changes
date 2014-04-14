@@ -1,5 +1,9 @@
 Revision history for ExtUtils-Install
 
+1.65
+
+- ExtUtils::Install handle symbolic and hard links
+
 1.64
 
 - Remove MM_TEST_ROOT feature from ExtUtils::Install tests
