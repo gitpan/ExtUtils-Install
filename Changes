@@ -1,5 +1,9 @@
 Revision history for ExtUtils-Install
 
+1.67
+
+- better -w tests
+
 1.66
 
 - Fix writable tests when running as root
