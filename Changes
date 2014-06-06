@@ -1,5 +1,9 @@
 Revision history for ExtUtils-Install
 
+1.68
+
+- Introduce env var PERL_INSTALL_QUIET to silence pm_to_blib() output
+
 1.67
 
 - better -w tests
