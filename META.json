@@ -4,7 +4,7 @@
       "demerphq <yves@cpan.org>"
    ],
    "dynamic_config" : 1,
-   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.141520",
+   "generated_by" : "ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.142060",
    "license" : [
       "perl_5"
    ],
@@ -48,14 +48,15 @@
    "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
-         "mailto" : "perlbug@perl.org",
-         "web" : "http://rt.perl.org/rt3/"
+         "web" : "https://rt.cpan.org/NoAuth/Bugs.html?Dist=ExtUtils-Install"
       },
+      "homepage" : "https://metacpan.org/release/ExtUtils-Install",
+      "license" : [
+         "http://dev.perl.org/licenses/"
+      ],
       "repository" : {
-         "type" : "git",
-         "url" : "git://perl5.git.perl.org/perl.git",
-         "web" : "http://perl5.git.perl.org/perl.git/"
+         "url" : "https://github.com/Perl-Toolchain-Gang/ExtUtils-Install"
       }
    },
-   "version" : "1.68"
+   "version" : "2.00"
 }
